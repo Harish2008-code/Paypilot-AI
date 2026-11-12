@@ -1,0 +1,39 @@
+{% extends "commerce/base.html" %}
+{% load static %}
+{% block title %}Invoice Studio · PayPilot AI{% endblock %}
+{% block crumb %}INVOICE STUDIO{% endblock %}
+{% block content %}
+<section class="page-wrap invoice-page">
+  <div class="page-title-row invoice-title"><div><p class="eyebrow"><span class="pulse-dot"></span> AI DRAFTS · PAYPAL SENDS</p><h1>Turn a brief into a<br><em>billable next step.</em></h1><p>Describe the work in plain language. The copilot drafts line items, totals and a due date for your review, then PayPal Invoicing can deliver it.</p></div><div class="privacy-note"><span>⌁</span><p><b>Human approval checkpoint</b>Every amount, recipient and send action remains editable and reviewable.</p></div></div>
+
+  <div class="invoice-workspace">
+    <section class="panel brief-builder">
+      <div class="panel-heading"><div><p class="eyebrow small">01 · GIVE THE COPILOT CONTEXT</p><h2>Invoice brief</h2></div><span class="mode-badge">{{ ai_mode }}</span></div>
+      <form id="invoice-form" class="invoice-form">
+        <div class="field-grid"><label>Client name<input id="client-name" required maxlength="160" placeholder="e.g. Acme Labs"></label><label>Client email<input id="client-email" required type="email" maxlength="254" placeholder="billing@acme.com"></label></div>
+        <label>What did you deliver?<textarea id="invoice-prompt" required minlength="8" maxlength="1800" placeholder="Invoice Acme Labs $2,400 for a brand identity sprint and launch messaging. Due in 14 days.">Invoice Acme Labs $2,400 for a brand identity sprint and launch messaging. Due in 14 days.</textarea></label>
+        <div class="brief-footer"><span>Try: scope + amount + due date. AI never invents payment terms.</span><button class="button primary" type="submit" id="draft-invoice-button">Generate draft <span>✦</span></button></div>
+      </form>
+      <div class="brief-chips"><button type="button" data-invoice-prompt="Invoice $850 for a UX audit with a findings presentation, due in 7 days.">UX audit · $850</button><button type="button" data-invoice-prompt="Invoice $1,500 for a monthly content system and four launch emails, due in 30 days.">Content system · $1,500</button></div>
+    </section>
+
+    <section class="invoice-preview-wrap" id="invoice-preview-wrap">
+      <div class="preview-topline"><span><i></i> REVIEW BEFORE SENDING</span><span id="invoice-mode-label">No draft yet</span></div>
+      <article class="invoice-paper" id="invoice-paper">
+        <div class="invoice-empty" id="invoice-empty"><span>▤</span><h3>Your reviewable invoice will appear here.</h3><p>It stays a local draft until you deliberately send it with PayPal.</p></div>
+        <div class="invoice-render hidden" id="invoice-render">
+          <div class="invoice-paper-head"><div class="invoice-brand"><span class="invoice-logo">P</span><div><b>paypilot</b><small>AI COMMERCE STUDIO</small></div></div><div class="invoice-ref"><span>INVOICE</span><b id="invoice-reference">—</b></div></div>
+          <div class="invoice-addresses"><div><span>BILL TO</span><b id="invoice-client-name">—</b><small id="invoice-client-email">—</small></div><div><span>DUE DATE</span><b id="invoice-due-date">—</b><small id="invoice-description">—</small></div></div>
+          <div class="invoice-lines"><div class="invoice-line-head"><span>DESCRIPTION</span><span>QTY</span><span>RATE</span><span>AMOUNT</span></div><div id="invoice-line-items"></div></div>
+          <div class="invoice-totals"><div><span>Subtotal</span><b id="invoice-subtotal">$0.00</b></div><div><span>Tax</span><b id="invoice-tax">$0.00</b></div><div class="invoice-grand-total"><span>TOTAL DUE</span><b id="invoice-total">$0.00</b></div></div>
+          <div class="invoice-notes"><span>AI NOTES</span><p id="invoice-notes">—</p></div>
+        </div>
+      </article>
+      <div class="send-invoice-bar"><div><span class="paypal-letter small">P</span><p><b>Send with PayPal Invoicing</b><small id="send-invoice-hint">Generate a draft first.</small></p></div><button class="button dark" id="send-invoice-button" type="button" disabled>Send for payment <span>→</span></button></div>
+    </section>
+  </div>
+
+  <section class="panel invoice-history"><div class="panel-heading"><div><p class="eyebrow small">LOCAL + PAYPAL INVOICE LEDGER</p><h2>Recent invoices</h2></div><span class="history-subtle">New drafts appear here after refresh</span></div><div class="invoice-history-list">{% for invoice in invoice_list %}<div class="invoice-history-row"><span class="invoice-row-logo">▤</span><div><b>{{ invoice.client_name }}</b><small>{{ invoice.reference }} · due {{ invoice.due_date|date:"d M" }}</small></div><span class="status status-{{ invoice.status|lower }}">{{ invoice.status|title }}</span><strong>{{ invoice.currency }} {{ invoice.total|floatformat:2 }}</strong></div>{% empty %}<div class="empty-state compact"><span>▤</span><p>No invoices yet—use the AI brief to create your first reviewable draft.</p></div>{% endfor %}</div></section>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'commerce/js/invoices.js' %}"></script>{% endblock %}

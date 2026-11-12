@@ -1,0 +1,27 @@
+{% extends "commerce/base.html" %}
+{% load static %}
+{% block title %}Support Desk · PayPilot AI{% endblock %}
+{% block crumb %}SUPPORT DESK{% endblock %}
+{% block content %}
+<section class="page-wrap support-page">
+  <div class="page-title-row"><div><p class="eyebrow"><span class="pulse-dot"></span> PAYMENT-AWARE SUPPORT</p><h1>Answer with <em>evidence.</em></h1><p>Give the support copilot the customer’s question and, when possible, the verified payment record. It drafts a safe response and flags human-review steps.</p></div><div class="support-rule"><span>⌁</span><p><b>Never credential-seeking.</b><br>AI does not issue refunds or change payment state by itself.</p></div></div>
+
+  <div class="support-layout">
+    <section class="panel support-console">
+      <div class="panel-heading"><div><p class="eyebrow small">PAYMENT CONTEXT</p><h2>Resolution copilot</h2></div><span class="safe-label">HUMAN-IN-THE-LOOP</span></div>
+      <label class="wide-label">Match a verified payment<select id="support-payment-select"><option value="">No order selected — general guidance only</option>{% for payment in payments %}<option value="{{ payment.id }}">{{ payment.order_id }} · {{ payment.status }} · {{ payment.currency }} {{ payment.amount }}{% if payment.payer_name %} · {{ payment.payer_name }}{% endif %}</option>{% endfor %}</select></label>
+      <div class="selected-order-hint" id="selected-order-hint"><span>⌁</span><p>Select an order to ground the AI response in its local PayPal status.</p></div>
+      <div class="support-chat" id="support-chat"><div class="chat-message assistant"><span class="message-mark">✦</span><div>I’m ready to help resolve a payment question. I’ll distinguish verified status from suggested next steps.</div></div></div>
+      <form id="support-form" class="support-input-row"><textarea id="support-message" required maxlength="1200" placeholder="e.g. The customer says they paid but has not received the workshop link."></textarea><button class="button primary" type="submit">Draft response <span>✦</span></button></form>
+      <div id="refund-review" class="refund-review hidden"><div><span>↶</span><p><b>Refund review suggested</b><small>The AI can recommend a refund. An operator must separately confirm it with PayPal.</small></p></div><button id="refund-button" class="button outline" type="button">Prepare refund</button></div>
+    </section>
+
+    <aside class="support-side">
+      <section class="panel support-principles"><p class="eyebrow small">WHY THIS IS SAFER</p><h2>AI proposes.<br>People decide.</h2><ul><li><span>01</span> Reads selected, verified local payment facts.</li><li><span>02</span> Does not expose account details or credentials.</li><li><span>03</span> Escalates refunds for explicit operator action.</li><li><span>04</span> Records the conversation context for audit.</li></ul></section>
+      <section class="support-mini-ledger"><div class="mini-ledger-head"><b>Recent order states</b><a href="{% url 'commerce:analytics' %}">Ledger ↗</a></div>{% for payment in payments|slice:":5" %}<div><span class="status status-{{ payment.status|lower }}">{{ payment.status|title }}</span><p>{{ payment.order_id }}<small>{{ payment.currency }} {{ payment.amount }}</small></p></div>{% endfor %}</section>
+    </aside>
+  </div>
+</section>
+{{ payments|json_script:"support-payments" }}
+{% endblock %}
+{% block scripts %}<script src="{% static 'commerce/js/support.js' %}"></script>{% endblock %}

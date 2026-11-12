@@ -1,0 +1,72 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101224">
+  <title>{% block title %}PayPilot AI{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'commerce/css/app.css' %}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Primary navigation">
+      <a class="brand" href="{% url 'commerce:dashboard' %}" aria-label="PayPilot AI home">
+        <span class="brand-mark"><i></i><i></i><i></i></span>
+        <span>paypilot<span class="brand-ai">AI</span></span>
+      </a>
+      <p class="workspace-label">COMMERCE OS</p>
+      <nav class="nav-list">
+        <a href="{% url 'commerce:dashboard' %}" class="nav-item {% if section == 'dashboard' %}active{% endif %}"><span class="nav-icon">⌘</span>Overview</a>
+        <a href="{% url 'commerce:shop' %}" class="nav-item {% if section == 'shop' %}active{% endif %}"><span class="nav-icon">✦</span>AI Shop</a>
+        <a href="{% url 'commerce:invoices' %}" class="nav-item {% if section == 'invoices' %}active{% endif %}"><span class="nav-icon">▤</span>Invoice Studio</a>
+        <a href="{% url 'commerce:support' %}" class="nav-item {% if section == 'support' %}active{% endif %}"><span class="nav-icon">◌</span>Support Desk</a>
+        <a href="{% url 'commerce:analytics' %}" class="nav-item {% if section == 'analytics' %}active{% endif %}"><span class="nav-icon">↗</span>Intelligence</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="mode-card {% if paypal_config.configured %}connected{% endif %}">
+          <span class="mode-dot"></span>
+          <div>
+            <b>{% if paypal_config.configured %}PayPal {{ paypal_config.mode|title }}{% else %}Guided demo mode{% endif %}</b>
+            <small>{% if paypal_config.configured %}Orders ready to approve{% else %}Add credentials to go live{% endif %}</small>
+          </div>
+        </div>
+        <a class="docs-link" href="https://developer.paypal.com/docs/" target="_blank" rel="noreferrer">PayPal developer docs <span>↗</span></a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="mobile-menu" type="button" aria-label="Toggle navigation">☰</button>
+        <div class="breadcrumb">PAYPILOT <span>/</span> {% block crumb %}COMMAND CENTER{% endblock %}</div>
+        <div class="topbar-actions">
+          <span class="ai-status"><span class="sparkle">✦</span> AI: {{ ai_mode }}</span>
+          <a href="{% url 'commerce:shop' %}" class="cart-pill" aria-label="Open cart">
+            <span>Cart</span><b id="cart-count">{{ cart.count }}</b>
+          </a>
+          <div class="avatar" title="Workspace owner">NP</div>
+        </div>
+      </header>
+
+      {% if messages %}
+        <div class="django-messages">
+          {% for message in messages %}<div class="notice {{ message.tags }}">{{ message }}</div>{% endfor %}
+        </div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+  {{ paypal_config|json_script:"paypal-config" }}
+  <script>
+    window.PayPilot = {
+      csrfToken: '{{ csrf_token }}',
+      currency: '{{ paypal_config.currency }}',
+      paypal: JSON.parse(document.getElementById('paypal-config').textContent)
+    };
+  </script>
+  <script src="{% static 'commerce/js/app.js' %}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

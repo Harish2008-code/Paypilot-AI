@@ -1,0 +1,52 @@
+{% extends "commerce/base.html" %}
+{% load static %}
+{% block title %}AI Shop · PayPilot AI{% endblock %}
+{% block crumb %}AI SHOP{% endblock %}
+{% block content %}
+<section class="page-wrap shop-page">
+  <div class="page-title-row">
+    <div><p class="eyebrow"><span class="pulse-dot"></span> CONVERSATIONAL CHECKOUT</p><h1>Find your next <em>good move.</em></h1><p>Tell the copilot what you are trying to make happen. It will recommend from the live catalog; you approve the exact total in PayPal.</p></div>
+    <div class="assurance-stack"><div><span>✦</span><b>AI recommends</b><small>No autonomous purchase</small></div><div><span>P</span><b>PayPal protects</b><small>Approval stays with buyer</small></div></div>
+  </div>
+
+  <div class="shop-layout">
+    <div class="shop-main">
+      <div class="catalog-toolbar"><div><b>Curated for independent teams</b><span>{{ products|length }} digital offers · instant delivery</span></div><div class="filter-pills"><button class="filter-pill active" data-filter="all">All</button><button class="filter-pill" data-filter="Strategy">Strategy</button><button class="filter-pill" data-filter="Automation">Automation</button><button class="filter-pill" data-filter="Marketing">Marketing</button></div></div>
+      <div class="product-grid" id="product-grid">
+        {% for product in products %}
+        <article class="product-card" data-category="{{ product.category }}" data-sku="{{ product.sku }}">
+          <div class="product-art {{ product.accent }}"><span>{{ product.emoji }}</span><i></i><i></i>{% if product.is_featured %}<b>POPULAR</b>{% endif %}</div>
+          <div class="product-body"><div class="product-meta"><span>{{ product.category }}</span><span>{% if product.inventory < 15 %}{{ product.inventory }} left{% else %}Ready now{% endif %}</span></div><h3>{{ product.name }}</h3><p>{{ product.description }}</p><div class="product-buy"><strong>${{ product.price|floatformat:2 }}</strong><button class="icon-button add-to-cart" type="button" data-sku="{{ product.sku }}" aria-label="Add {{ product.name }} to cart">+</button></div></div>
+        </article>
+        {% endfor %}
+      </div>
+
+      <section class="assistant-console" id="shopping-assistant">
+        <div class="console-head"><div class="copilot-avatar">✦</div><div><b>PayPilot Copilot</b><small><span class="online-dot"></span> {{ ai_mode }} · catalog-aware</small></div><span class="safe-label">ADVICE ONLY</span></div>
+        <div class="chat-log" id="shop-chat-log" aria-live="polite">
+          <div class="chat-message assistant"><span class="message-mark">✦</span><div>What are you building? Share your goal, timeline, or budget and I’ll make a practical shortlist.</div></div>
+        </div>
+        <div class="prompt-suggestions"><button type="button" data-prompt="I need a practical launch plan under $100.">Launch under $100</button><button type="button" data-prompt="Which offer helps automate a small client workflow?">Automate client work</button><button type="button" data-prompt="Compare a strategy session with a copy review.">Compare strategy & copy</button></div>
+        <form class="chat-form" id="shop-chat-form"><input id="shop-chat-input" maxlength="1200" autocomplete="off" placeholder="Ask for a recommendation…"><button class="send-button" type="submit" aria-label="Send question">↑</button></form>
+      </section>
+    </div>
+
+    <aside class="cart-panel" id="cart-panel">
+      <div class="cart-head"><div><p class="eyebrow small">YOUR SELECTION</p><h2>Cart <span id="cart-panel-count">{{ cart.count }}</span></h2></div><span class="cart-lock">⌁ Secure</span></div>
+      <div id="cart-items" class="cart-items">
+        {% for item in cart.items %}
+        <div class="cart-item"><span class="cart-emoji">{{ item.emoji }}</span><div><b>{{ item.name }}</b><small>{{ item.quantity }} × ${{ item.unit_price }}</small></div><div><strong>${{ item.amount }}</strong><button class="remove-cart-item" data-sku="{{ item.sku }}" aria-label="Remove {{ item.name }}">×</button></div></div>
+        {% empty %}
+        <div class="empty-cart"><span>＋</span><p>Your recommendations will land here.</p><small>Nothing is charged until the buyer approves in PayPal.</small></div>
+        {% endfor %}
+      </div>
+      <div class="cart-summary"><div><span>Subtotal</span><b id="cart-subtotal">${{ cart.total }}</b></div><div class="total-row"><span>Total</span><strong id="cart-total">${{ cart.total }} <small>{{ cart.currency }}</small></strong></div></div>
+      <div id="paypal-live-buttons" class="paypal-buttons"></div>
+      <button id="demo-checkout-button" class="button primary full checkout-button" type="button"><span class="paypal-letter">P</span> {% if paypal_config.configured %}Loading PayPal…{% else %}Try PayPal flow{% endif %}</button>
+      <p class="checkout-note"><span>⌁</span> The final amount and approval happen on PayPal. {% if not paypal_config.configured %}This workspace uses a clearly labelled demo capture until Sandbox credentials are added.{% endif %}</p>
+    </aside>
+  </div>
+</section>
+{{ catalog_json|json_script:"catalog-data" }}
+{% endblock %}
+{% block scripts %}<script src="{% static 'commerce/js/shop.js' %}"></script>{% endblock %}

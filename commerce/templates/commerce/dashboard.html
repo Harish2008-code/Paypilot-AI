@@ -1,0 +1,68 @@
+{% extends "commerce/base.html" %}
+{% block title %}Overview · PayPilot AI{% endblock %}
+{% block crumb %}COMMAND CENTER{% endblock %}
+{% block content %}
+<section class="page-wrap dashboard-page">
+  <div class="hero-row">
+    <div>
+      <p class="eyebrow"><span class="pulse-dot"></span> AGENTIC COMMERCE, WITH OVERSIGHT</p>
+      <h1>Payments that<br><em>think ahead.</em></h1>
+      <p class="hero-copy">PayPilot brings a conversational storefront, PayPal Checkout, AI invoice drafting and payment-aware support into one calm operating system.</p>
+      <div class="hero-actions">
+        <a class="button primary" href="{% url 'commerce:shop' %}">Open AI Shop <span>→</span></a>
+        <a class="button ghost" href="{% url 'commerce:invoices' %}">Draft an invoice</a>
+      </div>
+    </div>
+    <div class="hero-orbit" aria-hidden="true">
+      <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+      <div class="orbital-card payment-card"><span class="mini-logo">P</span><div><small>PAYMENT SIGNAL</small><b>Capture verified</b></div><strong>✓</strong></div>
+      <div class="orbital-card ai-card"><span>✦</span><div><small>AI COPILOT</small><b>Ready to help</b></div></div>
+      <div class="hero-core"><span>PP</span><small>AI</small></div>
+    </div>
+  </div>
+
+  <section class="metrics-grid" aria-label="Commerce metrics">
+    <article class="metric-card feature"><div class="metric-top"><span>GROSS PROCESSED</span><i>↗</i></div><strong>${{ metrics.gross|floatformat:2 }}</strong><p><span class="positive">●</span> Completed PayPal captures</p></article>
+    <article class="metric-card"><div class="metric-top"><span>CAPTURE RATE</span><i>◎</i></div><strong>{{ metrics.success_rate }}<small>%</small></strong><p>{{ metrics.completed }} completed orders in ledger</p></article>
+    <article class="metric-card"><div class="metric-top"><span>OPEN TO COLLECT</span><i>▤</i></div><strong>${{ metrics.open_invoices|floatformat:2 }}</strong><p>Draft + sent invoice value</p></article>
+    <article class="metric-card ai-metric"><div class="metric-top"><span>FORECAST · 7 DAYS</span><i>✦</i></div><strong>${{ forecast.next_week }}</strong><p><span class="trend {% if forecast.direction == 'down' %}down{% endif %}">{{ forecast.change_percent }}%</span> vs prior seven days</p></article>
+  </section>
+
+  <section class="split-grid dashboard-split">
+    <article class="panel intelligence-panel">
+      <div class="panel-heading"><div><p class="eyebrow small">AI OPERATIONS BRIEF</p><h2>Today’s signal</h2></div><span class="mode-badge">{{ brief.mode }}</span></div>
+      <div class="brief-main"><span class="brief-star">✦</span><p>{{ brief.headline }}</p></div>
+      <div class="brief-next"><span>Recommended next move</span><p>{{ brief.next_step }}</p></div>
+      <a href="{% url 'commerce:analytics' %}" class="text-link">Explore intelligence <span>→</span></a>
+    </article>
+
+    <article class="panel flow-panel">
+      <div class="panel-heading"><div><p class="eyebrow small">MONEY FLOW</p><h2>From intention to capture</h2></div><span class="legend-dot">Live pattern</span></div>
+      <div class="flow-visual" aria-label="AI to PayPal workflow">
+        <div class="flow-node"><span class="node-icon ai">✦</span><b>AI understands</b><small>Need, budget, intent</small></div>
+        <span class="flow-line"></span>
+        <div class="flow-node"><span class="node-icon pp">P</span><b>PayPal approves</b><small>Secure payer consent</small></div>
+        <span class="flow-line"></span>
+        <div class="flow-node"><span class="node-icon done">✓</span><b>Team acts</b><small>Verified local ledger</small></div>
+      </div>
+      <p class="panel-footnote">AI suggests. The customer approves in PayPal. Every action remains reviewable.</p>
+    </article>
+  </section>
+
+  <section class="panel activity-panel">
+    <div class="panel-heading"><div><p class="eyebrow small">PAYPAL ACTIVITY</p><h2>Recent payment ledger</h2></div><a href="{% url 'commerce:analytics' %}" class="text-link">All activity <span>→</span></a></div>
+    <div class="activity-list">
+      {% for payment in recent_payments %}
+      <div class="activity-row">
+        <span class="activity-icon {% if payment.status == 'COMPLETED' %}success{% elif payment.status == 'PENDING' %}pending{% else %}neutral{% endif %}">{% if payment.status == 'COMPLETED' %}✓{% elif payment.status == 'PENDING' %}◌{% else %}↶{% endif %}</span>
+        <div class="activity-person"><b>{{ payment.payer_name|default:"PayPal buyer" }}</b><small>{{ payment.order_id }} · {{ payment.source }}</small></div>
+        <span class="status status-{{ payment.status|lower }}">{{ payment.status|title }}</span>
+        <div class="activity-amount"><b>{{ payment.currency }} {{ payment.amount }}</b><small>{{ payment.timestamp }}</small></div>
+      </div>
+      {% empty %}
+      <div class="empty-state compact"><span>◌</span><p>No payment activity yet. Start with the AI Shop or seed demo data.</p></div>
+      {% endfor %}
+    </div>
+  </section>
+</section>
+{% endblock %}
